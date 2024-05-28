@@ -1,0 +1,38 @@
+version: '3.3'
+
+networks:
+  edge:
+    external: true
+
+services:
+  web:
+    container_name: noav-chat
+    image: nginx:1.23.1-alpine
+    expose:
+      - 80
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=web"
+      - "traefik.http.services.wiiz-main2.loadbalancer.server.port=80"
+      - "traefik.http.routers.wiiz-main2.rule=Host(`chat.no-av.ir`)"
+      - "traefik.http.routers.wiiz-main2.entrypoints=websecure"
+      - "traefik.http.routers.wiiz-main2.tls=true"
+      - "traefik.http.routers.wiiz-main2.tls.certresolver=le"
+
+#      - "traefik.http.routers.maintenance-page.rule=HostRegexp(`{host:.+}`)"
+#      - "traefik.http.routers.maintenance-page.service=wiiz-main"
+#      - "traefik.http.routers.maintenance-page.priority=1"
+#      - "traefik.http.routers.maintenance-page.middlewares=maintenance-page@docker"
+#      - "traefik.http.routers.maintenance-page.entrypoints=websecure"
+#      - "traefik.http.routers.maintenance-page.tls=true"
+#      - "traefik.http.middlewares.maintenance-page.errors.status=400-599"
+#      - "traefik.http.middlewares.maintenance-page.errors.service=wiiz-main"
+#      - "traefik.http.middlewares.maintenance-page.errors.query=/errors"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+      - ./public/:/usr/share/nginx/html/
+    environment:
+     - NGINX_PORT=80
+
+    networks:
+      edge:
